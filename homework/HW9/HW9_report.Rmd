@@ -1,0 +1,191 @@
+---
+title: "HW9_report"
+author: "Tianqi Wu"
+date: "12/14/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r,echo=FALSE}
+sf_high=c('Bowling','Diving','Billiards','PoleVault','HorseRiding','HorseRace','PlayingTabla',
+          'SkyDiving','IceDancing','BasketballDunk','WritingOnBoard','BabyCrawling',
+          'RockClimbingIndoor','PlayingFlute','Surfing','BreastStroke')
+
+sf_low = c('JumpRope', 'HandstandWalking', 'BodyWeightSquats', 'FrontCrawl', 'HighJump', 'YoYo', 'Nunchucks', 'PushUps', 'Shotput', 'JumpingJack')
+
+sf_confused = data.frame(true_label=c('FrontCrawl','HighJump','CricketShot','BodyWeightSquats','PushUps','BrushingTeeth','ApplyEyeMakeup','YoYo','JumpingJack','Hammering'),
+                         prediction=c('BreastStroke','JavelinThrow','CricketBowling','Lunges','BabyCrawling','ShavingBeard','ApplyLipstick','JugglingBalls','JumpRope','HeadMassage'),
+                         off_diagonal_value=c(0.5135, 0.3514, 0.3061, 0.3, 0.3, 0.2778, 0.25, 0.25, 0.2333, 0.2162))
+
+
+seq_high=c('VolleyballSpiking', 'BabyCrawling', 'BalanceBeam', 'TennisSwing', 'TableTennisShot', 'Swing', 'SoccerPenalty', 'TrampolineJumping', 'BasketballDunk', 'PlayingTabla', 'Rafting', 'FieldHockeyPenalty', 'Fencing', 'Drumming', 'Diving', 'HeadMassage', 'CleanAndJerk', 'HorseRace', 'HorseRiding', 'HulaHoop', 'IceDancing', 'JumpingJack', 'JumpRope', 'WritingOnBoard', 'Bowling', 'ParallelBars', 'Billiards', 'PlayingDhol', 'PlayingGuitar', 'PlayingPiano', 'PlayingViolin', 'PoleVault', 'Rowing', 'ApplyEyeMakeup')
+
+seq_low=c('HandstandWalking', 'Nunchucks', 'FrontCrawl', 'BlowDryHair', 'HighJump', 'YoYo', 'CricketBowling', 'Hammering', 'Lunges', 'Basketball')
+
+seq_confused = data.frame(true_label=c('FrontCrawl','BlowDryHair','BrushingTeeth','YoYo','Nunchucks','Basketball','CricketShot','Kayaking','HammerThrow','HighJump'),
+                         prediction=c('BreastStroke','Haircut','ApplyEyeMakeup','JugglingBalls','TaiChi','TennisSwing','CricketBowling','Rafting','ThrowDiscus','JavelinThrow'),
+                         off_diagonal_value=c(0.5676, 0.5263, 0.3611, 0.3611, 0.3143, 0.2857, 0.2857, 0.2778, 0.2444, 0.2432))
+
+
+combined_high=c('Surfing', 'SoccerPenalty', 'FieldHockeyPenalty', 'ParallelBars', 'Fencing', 'TennisSwing', 'Drumming', 'Diving', 'VolleyballSpiking', 'BreastStroke', 'TableTennisShot', 'TrampolineJumping', 'Billiards', 'Bowling', 'WritingOnBoard', 'PlayingPiano', 'PlayingTabla', 'PlayingViolin', 'PoleVault', 'IceDancing', 'HulaHoop', 'HorseRiding', 'BabyCrawling', 'Rafting', 'RockClimbingIndoor', 'Rowing', 'HorseRace', 'HeadMassage', 'BasketballDunk', 'Skijet', 'PlayingDhol')
+
+combined_low=c('HandstandWalking', 'FrontCrawl', 'HighJump', 'Nunchucks', 'YoYo', 'CricketBowling', 'Hammering', 'Lunges', 'BrushingTeeth', 'BodyWeightSquats')
+
+combined_confused = data.frame(true_label=c('FrontCrawl','BlowDryHair','HighJump','Nunchucks','Basketball','CricketShot','YoYo','BoxingPunchingBag','BrushingTeeth','Hammering'),
+                         prediction=c('BreastStroke','Haircut','JavelinThrow','TaiChi','TennisSwing','CricketBowling','JugglingBalls','BoxingSpeedBag','ShavingBeard','HeadMassage'),
+                         off_diagonal_value=c(0.5676, 0.3421, 0.3243, 0.3143, 0.2857, 0.2857, 0.2778, 0.2653, 0.25, 0.2424))
+
+acc = data.frame(Model = c('single_frame','seq_3d ','combined'),
+  top1_acc = c(0.779804,0.948454,0.981232),
+  top5_acc= c(0.845096,0.968015,0.989691),
+  top10_acc = c(0.850383,0.976209,0.990484))
+```
+
+# Results improvement
+The results improved after combining the outputs. 
+
+```{r,echo=FALSE}
+kable(acc)
+```
+
+# Spatial information versus temporal information:
+
+## Highest performance
+
+Following classes are predicted with 100% accuracy by single frame model but not 3d sequence model. Looking at static single frame is enough to tell the activity like 'PlayingFlute'. Hence, they are discriminated more by spatial information. 
+
+```{r,echo=FALSE}
+setdiff(sf_high,seq_high)
+```
+
+Following classes are predicted with 100% accuracy by 3d sequence model but not single frame model. Looking at sequence of frames are helpful to better distinguish the activities like 'TableTennisShot'. Hence, they are discriminated more by temporal information.
+
+```{r,echo=FALSE}
+setdiff(seq_high,sf_high)
+```
+
+Following classes are predicted with 100% accuracy by both 3d sequence model and single frame model. 
+
+```{r,echo=FALSE}
+intersect(seq_high,sf_high)
+```
+
+
+
+\newpage
+
+# Spatial information versus temporal information:
+
+## Lowest performance:
+
+Following classes are in 10 lowest performance by single frame model but not 3d sequence model. Hence, they are discriminated more by temporal information.
+
+```{r,echo=FALSE}
+setdiff(sf_low,seq_low)
+```
+
+Following classes are in 10 lowest performance by single frame model but not 3d sequence model. Hence, they are discriminated more by spatial information.
+
+```{r,echo=FALSE}
+setdiff(seq_low,sf_low)
+```
+
+Following classes are in 10 lowest performance by both single frame model and 3d sequence model.
+
+```{r,echo=FALSE}
+intersect(sf_low,seq_low)
+```
+
+
+# Most confused classes
+
+Most the confused classes include very similar activities. 'FrontCrawl' and 'BreastStroke' are especially confusing and they are the most confused classes for all three models. However, ' Hammering' and 'HeadMassage' are surprising since they are quite distinct actions.
+
+\newpage
+
+
+# Single-frame model
+
+##(top1_accuracy,top5_accuracy,top10_accuracy): 
+
+(0.779804,0.948454,0.981232)
+
+## 10 classes with the highest performance:
+All of the following classes have 100% accuracy.
+
+```{r,echo=FALSE}
+sf_high
+```
+
+
+## 10 classes with the lowest performance:
+
+```{r,echo=FALSE}
+sf_low
+```
+
+
+## 10 most confused classes.
+
+```{r,echo=FALSE}
+kable(sf_confused)
+```
+
+\newpage
+
+# 3D Sequence model 
+
+##(top1_accuracy,top5_accuracy,top10_accuracy): 
+
+(0.845096,0.968015,0.989691) 
+
+## 10 classes with the highest performance:
+All of the following classes have 100% accuracy.
+
+```{r,echo=FALSE}
+seq_high
+```
+
+## 10 classes with the lowest performance:
+
+```{r,echo=FALSE}
+seq_low
+```
+
+
+## 10 most confused classes.
+
+```{r,echo=FALSE}
+kable(seq_confused)
+```
+
+\newpage
+# Combined output of the two models
+
+##(top1_accuracy,top5_accuracy,top10_accuracy): 
+
+(0.850383,0.976209,0.990484)	
+
+## 10 classes with the highest performance:
+All of the following classes have 100% accuracy.
+
+```{r,echo=FALSE}
+combined_high
+```
+
+## 10 classes with the lowest performance:
+
+```{r,echo=FALSE}
+combined_low
+```
+
+## 10 most confused classes.
+
+```{r,echo=FALSE}
+kable(combined_confused)
+```
