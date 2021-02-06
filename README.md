@@ -11,4 +11,7 @@ Following topics are covered:
 * Distributed Training
 * Reinforcement Learning
 
-Hope it helps! 
+If you want to learn more about deep learning,
+check out course [CS498-DL](http://slazebni.cs.illinois.edu/fall20/). Svetlana Lazebnik is also an amazing professor.
+
+Hope it helps!
